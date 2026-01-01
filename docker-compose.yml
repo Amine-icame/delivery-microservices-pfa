@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: delivery-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker-data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - delivery-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: delivery-zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - delivery-network
+
+  config-service:
+    build: ./delivery-microservices/config-service/config-service
+    container_name: config-service
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    depends_on:
+      - discovery-service
+    networks:
+      - delivery-network
+
+  discovery-service:
+    build: ./delivery-microservices/discovery-service/discovery-service
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - delivery-network
+
+  gateway-service:
+    build: ./delivery-microservices/gateway-service/gateway-service
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY=TRACE
+    depends_on:
+      - discovery-service
+    networks:
+      - delivery-network
+
+  identity-service:
+    build: ./delivery-microservices/identity-service/identity-service
+    container_name: identity-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db_delivery_auth
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    depends_on:
+      - postgres
+      - discovery-service
+    networks:
+      - delivery-network
+
+  customer-service:
+    build: ./delivery-microservices/customer-service/customer-service
+    container_name: customer-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db_delivery_customer
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    depends_on:
+      - postgres
+      - discovery-service
+    networks:
+      - delivery-network
+
+  product-service:
+    build: ./delivery-microservices/product-service/product-service
+    container_name: product-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db_delivery_product
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    depends_on:
+      - postgres
+      - discovery-service
+    networks:
+      - delivery-network
+
+  order-service:
+    build: ./delivery-microservices/order-service/order-service
+    container_name: order-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db_delivery_order
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    depends_on:
+      - postgres
+      - discovery-service
+    networks:
+      - delivery-network
+
+  delivery-service:
+    build: ./delivery-microservices/delivery-service/delivery-service
+    container_name: delivery-service
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db_delivery_logistics
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_ZIPKIN_BASE_URL=http://zipkin:9411
+    depends_on:
+      - postgres
+      - discovery-service
+    networks:
+      - delivery-network
+
+  frontend:
+    build: ./delivery-frontend
+    container_name: delivery-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway-service
+    networks:
+      - delivery-network
+
+volumes:
+  postgres-data:
+
+networks:
+  delivery-network:
+    driver: bridge

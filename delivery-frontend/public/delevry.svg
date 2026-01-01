@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" fill="none">
+    <defs>
+        <!-- Gradient principal (style Vite) -->
+        <linearGradient id="truckBody" x1="20" y1="20" x2="236" y2="236" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#41D1FF"/>
+            <stop offset="0.55" stop-color="#7C3AED"/>
+            <stop offset="1" stop-color="#FF9F1C"/>
+        </linearGradient>
+
+        <!-- Gradient vitre cabine -->
+        <linearGradient id="glass" x1="140" y1="60" x2="210" y2="130" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
+            <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.35"/>
+        </linearGradient>
+
+        <!-- Ombre douce -->
+        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity="0.18"/>
+        </filter>
+
+        <!-- Glow (effet “neon speed”) -->
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+
+    <!-- Fond badge (optionnel mais très stylé pour favicon) -->
+    <path d="M128 18L228 74V182L128 238L28 182V74L128 18Z" fill="url(#truckBody)" filter="url(#softShadow)"/>
+
+    <!-- Corps camion (caisse + cabine) -->
+    <g transform="translate(0,2)">
+        <!-- Caisse -->
+        <path d="M56 108C56 101.373 61.373 96 68 96H150C156.627 96 162 101.373 162 108V150C162 156.627 156.627 162 150 162H68C61.373 162 56 156.627 56 150V108Z"
+              fill="#0B1020" opacity="0.88"/>
+
+        <!-- Ligne stylée caisse -->
+        <path d="M68 110H150" stroke="#FFFFFF" stroke-opacity="0.22" stroke-width="6" stroke-linecap="round"/>
+
+        <!-- Cabine -->
+        <path d="M162 112C162 105.373 167.373 100 174 100H190C195.2 100 200.09 102.53 203.1 106.78L216.6 125.78C218.75 128.83 220 132.47 220 136.2V150C220 156.627 214.627 162 208 162H162V112Z"
+              fill="#0B1020" opacity="0.92"/>
+
+        <!-- Vitre cabine -->
+        <path d="M176 112H196C198.6 112 201.03 113.27 202.54 115.4L210.8 127.2C211.58 128.32 210.78 129.85 209.42 129.85H176C173.79 129.85 172 128.06 172 125.85V116C172 113.79 173.79 112 176 112Z"
+              fill="url(#glass)"/>
+
+        <!-- Pare-chocs -->
+        <path d="M48 150C48 145.582 51.582 142 56 142H216C220.418 142 224 145.582 224 150C224 154.418 220.418 158 216 158H56C51.582 158 48 154.418 48 150Z"
+              fill="#FFFFFF" fill-opacity="0.14"/>
+
+        <!-- Roues -->
+        <g>
+            <circle cx="92" cy="168" r="16" fill="#0B1020"/>
+            <circle cx="92" cy="168" r="8" fill="#FFFFFF" fill-opacity="0.55"/>
+
+            <circle cx="186" cy="168" r="16" fill="#0B1020"/>
+            <circle cx="186" cy="168" r="8" fill="#FFFFFF" fill-opacity="0.55"/>
+        </g>
+
+        <!-- Traits de vitesse (neon) -->
+        <g filter="url(#glow)">
+            <path d="M72 82H138" stroke="#41D1FF" stroke-width="8" stroke-linecap="round" stroke-opacity="0.85"/>
+            <path d="M56 70H122" stroke="#7C3AED" stroke-width="7" stroke-linecap="round" stroke-opacity="0.75"/>
+            <path d="M84 58H150" stroke="#FF9F1C" stroke-width="7" stroke-linecap="round" stroke-opacity="0.7"/>
+        </g>
+
+        <!-- Logo mini (éclair) sur la caisse -->
+        <path d="M122 118L102 144H118L114 156L138 132H124L122 118Z"
+              fill="#FFB703" opacity="0.95"/>
+    </g>
+</svg>
